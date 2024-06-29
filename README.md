@@ -1,4 +1,4 @@
-# Grupo Cero - Django
+# Grupo Cero - Final
 
 ![Last Commit](https://img.shields.io/github/last-commit/Hushripple/GC-D)
 
