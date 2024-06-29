@@ -1,0 +1,43 @@
+{% extends "core/base.html" %}
+
+{% block titulo %}<title>Historial de Pagos</title>{% endblock %}
+
+{% block contenido %}
+<div class="container mt-5">
+    <h2 class="mb-4">Historial de Pagos</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Fecha de Pago</th>
+                    <th>Método de Pago</th>
+                    <th>Lanzamientos Comprados</th>
+                    <th>Voucher</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pago in pagos %}
+                <tr>
+                    <td>{{ pago.fecha_pago }}</td>
+                    <td>{{ pago.metodo_pago }}</td>
+                    <td>
+                        <ul>
+                            {% for lanzamiento in pago.lanzamientos_comprados.all %}
+                            <li>{{ lanzamiento.nombreLanzamiento }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td>
+                        <a href="{% url 'generar_voucher' pago.id %}" class="btn btn-dark">Generar Voucher</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No hay pagos registrados.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

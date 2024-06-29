@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lanzamientos-Grupo Cero</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" type="image/png" href="{% static 'core/img/noise2.png' %}">
+</head>
+
+<body>
+    <!-- Inicio menú con logo -->
+    <nav class="navbar navbar-expand-sm bg-light navbar-light justify-content-center">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{% static 'core/img/LOGO.png' %}" alt="Avatar Logo" style="width:200px;" class="rounded-pill">
+            </a>
+            <ul class="navbar-nav">
+                {% if not user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link text-center" href="#">Bienvenido, Invitado</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registroModal">Registro</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'loginmiembros' %}">Miembro</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'loginadmins' %}">Admin</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link text-center" href="#">Bienvenido, {{ user.username }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Cerrar sesión</a>
+                </li>
+                {% endif %}
+                <li class="nav-item w-100 mx-2 d-flex">
+                    <p class="navbar-text">Cantidad de productos: <span id="product-count">{{ cantidad }}</span></p>
+                    <a class="btn carrito_icono" href="{% url 'carrito' %}">
+                        <h4>
+                            <i class="bi bi-cart"></i>
+                        </h4>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <!-- Fin menú con logo -->
+
+    <!-- Inicio modals para registro e inicio de sesión -->
+    <div class="modal fade" id="registroModal" tabindex="-1" aria-labelledby="registroModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registroModalLabel" style="color:black">Registro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- Formulario de registro -->
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'registercliente' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="emailRegistro" class="form-label" style="color:black">Email</label>
+                            <input type="email" class="form-control" id="txtEmail" name="email" placeholder="Introduce un email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombreRegistro" class="form-label" style="color:black">Nombre de usuario</label>
+                            <input type="text" class="form-control" id="txtUsuario" name="username" placeholder="Introduce un nombre de usuario" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordRegistro" class="form-label" style="color:black">Contraseña</label>
+                            <input type="password" class="form-control" id="txtPassword" name="password" placeholder="Introduce una contraseña" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="passwordRepetirRegistro" class="form-label" style="color:black">Confirmar contraseña</label>
+                            <input type="password" class="form-control" id="txtPasswordConfirmation" name="password_confirmation" placeholder="Vuelva a introducir contraseña" required>
+                        </div>
+                        <button type="submit" class="btn btn-dark">Registrarse</button>
+                    </form>
+                </div>
+                <!-- Fin formulario registro -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel" style="color: black;">Iniciar sesión</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <!-- Formulario de inicio de sesión -->
+                <div class="modal-body">
+                    <form action="{% url 'login' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="username" class="form-label" style="color: black;">Nombre de usuario</label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Introduce tu usuario" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label" style="color: black;">Contraseña</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Introduce tu contraseña" required>
+                        </div>
+                        <button type="submit" class="btn btn-dark" style="color: white;">Iniciar sesión</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes -->
+    {% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+            Swal.fire({
+                icon: '{{ message.tags }}',
+                title: '{{ message.tags|title }}',
+                text: '{{ message }}',
+                {% if message.tags == 'success' %}
+                iconColor: 'green',
+                {% else %}
+                iconColor: 'red',
+                {% endif %}
+                timer: 3000,
+                showConfirmButton: false
+            });
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+
+    <!-- Fin modals para registro e inicio de sesión -->
+
+    <!-- container de las cartas -->
+    <div class="container">
+        <!-- Inicio cards para lanzamientos -->
+        <section class="mb-5" id="lanzamientos">
+            <div class="row justify-content-center">
+                <h2 class="text-center my-4" style="font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;">
+                    <strong>LANZAMIENTOS</strong>
+                </h2>
+                <div class="text-center pt-0 pb-5"></div>
+                {% for auxLanzObj in page_obj %}
+                <div class="col-md-2 col-sm-12">
+                    <div class="card h-100 border-0 mx-12 align-items-center mb-5">
+                        {% if auxLanzObj.imagen %}
+                        <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#modal{{ auxLanzObj.id }}">
+                            <img class="card-img-top" src="{{ auxLanzObj.imagen }}" alt="imagenLanzamiento" style="max-width: 130px; max-height: 130px;">
+                        </button>
+                        <a type="button" class="btn btn-sm btn-outline-secondary ms-2" href="{% url 'carritoadd' lanz_id=auxLanzObj.id %}">Agregar al carrito</a>
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h4>{{ auxLanzObj.nombreLanzamiento }}</h4>
+                            <p>Artista: {{ auxLanzObj.artista.nombreArtista }}</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal -->
+                <div class="modal fade" id="modal{{ auxLanzObj.id }}" tabindex="-1" aria-labelledby="modalLabel{{ auxLanzObj.id }}Label" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-dark text-center" id="modalLabel{{ auxLanzObj.id }}">{{ auxLanzObj.nombreLanzamiento }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="text-dark"><b>Tipo lanzamiento:</b> {{ auxLanzObj.tipoLanzamiento.nombreTipo }}</p>
+                                <p class="text-dark"><b>Nombre lanzamiento:</b> {{ auxLanzObj.nombreLanzamiento }}</p>
+                                <p class="text-dark"><b>Artista:</b> {{ auxLanzObj.artista.nombreArtista }}</p>
+                                <p class="text-dark"><b>Fecha de lanzamiento:</b> {{ auxLanzObj.fechaLanzamiento }}</p>
+                                <p class="text-dark"><b>Género:</b> {{ auxLanzObj.genero.nombreGenero }}</p>
+                                <p class="text-dark"><b>Descripción:</b> {{ auxLanzObj.descripcionLanzamiento }}</p>
+                                <p class="text-dark"><b>Precio:</b> {{ auxLanzObj.precio }}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Paginación -->
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link bg-dark text-white" href="?page=1">&laquo; Primera</a></li>
+                    <li class="page-item"><a class="page-link bg-dark text-white" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><a class="page-link bg-dark text-white" href="#">{{ num }}</a></li>
+                    {% elif num > page_obj.number|add:'-5' and num < page_obj.number|add:'5' %}
+                    <li class="page-item"><a class="page-link bg-dark text-white" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link bg-dark text-white" href="?page={{ page_obj.next_page_number }}">Siguiente</a></li>
+                    <li class="page-item"><a class="page-link bg-dark text-white" href="?page={{ page_obj.paginator.num_pages }}">Última &raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </section>
+    </div>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+{% extends "core/base.html" %}
+{% block titulo %}<title>Historial de Carritos</title>{% endblock %}
+{% block contenido %}
+<div class="container">
+    <h2>Historial de Carritos</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in historial %}
+            <tr>
+                <td>{{ item.producto.nombreLanzamiento }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>{{ item.fecha }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,10 @@
+<script>
+    // Agregar una condicion para ejecutar el codigo js para abrir sweet alert dependiente del mensaje 'msg'
+    if ('{{msj}}' !== '') {
+        Swal.fire({
+            icon: 'info',
+            title: 'Mensaje',
+            text: '{{msj}}'
+        });
+    }
+</script>

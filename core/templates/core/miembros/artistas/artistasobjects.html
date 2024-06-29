@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+    {% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Miembro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'core/img/noise2.png' %}">
+    <style>
+        body {
+            background: repeating-radial-gradient(circle, #ffffff, #f1f0f0);
+        }
+    </style>
+</head>
+<body>
+<!-- Inicio menú de admin con logo -->
+<nav class="navbar navbar-expand-sm bg-light navbar-light justify-content-center">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'miembrosindex' %}">
+            <img src="{% static 'core/img/LOGO.png' %}" alt="Avatar Logo" style="width:200px;" class="rounded-pill"> 
+        </a>
+    </div>
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link text-center" style="width:200px;">Bienvenido, {{ user.username }}</a>
+        </li>
+    </ul>
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}">
+                <button class="btn btn-dark" type="button" style="width:120px;">Cerrar sesión</button>
+            </a>
+        </li>
+    </ul> 
+</nav>
+
+<!-- Lista de Ejemplo -->
+<div class="container mt-5 text-center">
+    <!-- Géneros -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Artistas</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped mb-5">
+                <thead>
+                    <tr>
+                        <th scope="col">ID artista</th>
+                        <th scope="col">Nombre artista</th>
+                        <th scope="col">Fecha de nacimiento</th>
+                        <th scope="col">Biografía</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Imagen</th>
+                        <th scope="col">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for auxArtObj in listaArtObj %}
+                    <tr>
+                        <td>{{ auxArtObj.pk }}</td>
+                        <td>{{ auxArtObj.nombreArtista }}</td>
+                        <td>{{ auxArtObj.fecha_nacimiento }}</td>
+                        <td>{{ auxArtObj.biografia|truncatechars:50 }}</td>
+                        {% if auxArtObj.aprobado == 'aprobado' %}
+                            <td><span class="badge bg-success">{{ auxArtObj.aprobado }}</span></td>
+                        {% elif auxArtObj.aprobado == 'pendiente' %}
+                            <td><span class="badge bg-secondary">{{ auxArtObj.aprobado }}</span></td>
+                        {% else %}
+                        <!-- Modal para mostrar el feedback -->
+                        <div class="modal fade" id="feedbackModal{{ auxArtObj.pk }}" tabindex="-1" aria-labelledby="feedbackModalLabel{{ auxArtObj.pk }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="feedbackModalLabel{{ auxArtObj.pk }}"><p class="text-dark">Feedback</p></h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="text-dark">{{ auxArtObj.feedback }}</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <td><span class="badge bg-danger" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ auxArtObj.pk }}" data-bs-placement="top" title="{{ auxArtObj.feedback }}">{{ auxArtObj.aprobado }}</span></td>
+                        {% endif %}
+                        <td>
+                            {% if auxArtObj.imagen %}
+                                <a href="#" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#modalImagen{{ auxArtObj.pk }}">Imagen</a>
+                                <!-- Modal de imagen -->
+                                <div class="modal fade" id="modalImagen{{ auxArtObj.pk }}" tabindex="-1" aria-labelledby="modalImagenLabel{{ auxArtObj.pk }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="modalImagenLabel{{ auxArtObj.pk }}"><p class="text-dark">Imagen</p></h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <img src="{{ auxArtObj.imagen.url }}" alt="" style="max-width: 100%;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'artistasupdate' auxArtObj.pk %}" class="btn btn-dark me-2">Modificar</a>
+                            <!-- Botón para abrir el modal -->
+                            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#confirmModal{{ auxArtObj.pk }}">
+                                Eliminar
+                            </button>
+
+                            <!-- Modal de confirmación -->
+                            <div class="modal fade" id="confirmModal{{ auxArtObj.pk }}" tabindex="-1" aria-labelledby="confirmModalLabel{{ auxArtObj.pk }}" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="confirmModalLabel{{ auxArtObj.pk }}"><p class="text-dark">Confirmar eliminación</p></h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p class="text-dark">¿Está seguro que desea eliminar este artista?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancelar</button>
+                                            <a href="{% url 'artistasdelete' auxArtObj.pk %}" class="btn btn-dark">Aceptar</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="text-center">
+                <a href="{% url 'artistasadd' %}" class="btn btn-dark">Agregar otro artista</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'core/js/funciones.js' %}"></script>
+
+</body>
+</html>

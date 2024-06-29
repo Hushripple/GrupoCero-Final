@@ -1,0 +1,29 @@
+footer {
+    background-color: black;
+    color: white;
+    padding: 5px;
+    text-align: center;
+    width: 100%;
+    bottom: 0; 
+  } 
+
+body{
+    background-color: white;
+    color: black;
+}
+
+.modal{
+  color: white;
+}
+
+.alert-success {
+  color: #155724; /* Color del texto para mensajes de éxito */
+  background-color: #d4edda; /* Color de fondo para mensajes de éxito */
+  border-color: #c3e6cb; /* Color del borde para mensajes de éxito */
+}
+
+
+.carrito_icono {
+  position: inherit;
+}
+
